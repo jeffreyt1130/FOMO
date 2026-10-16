@@ -577,6 +577,9 @@ textarea.in { min-height: 90px; resize: vertical; line-height: 1.4; }
 .sheet-body > .btn { width: auto; }
 .person .who b .badge { display: inline-block; font-weight: 500; } .person .who > span span { display: inline; font-size: inherit; color: inherit; }
 
+.pc-row { display: flex; gap: 8px; } .pc-row .in { flex: 1; text-transform: uppercase; font-family: var(--mono); letter-spacing: .06em; } .pc-row .in::placeholder { text-transform: none; font-family: var(--body); letter-spacing: 0; }
+#ev-pc-msg { min-height: 16px; }
+
 html,body{margin:0}
 </style>
 </head>
@@ -823,7 +826,7 @@ html,body{margin:0}
 <script>window.FOMO_CONFIG = {"url": "https://ckrgyymdcxrkbqbrhggj.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcmd5eW1kY3hya2JxYnJoZ2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxNTk1ODAsImV4cCI6MjEwNzczNTU4MH0.XVeUj1BzIB1AKICjzbd9irOVlooOIs6RnGiTkpkqauk"};
 /* Always run the latest build: GitHub Pages lets browsers cache this page for 10 minutes,
    so check the live copy and reload once if a newer version has been published. */
-window.FOMO_BUILD = "20261016183538";
+window.FOMO_BUILD = "20261016185617";
 (function () {
   try {
     if (sessionStorage.getItem("fomo-reloaded") === window.FOMO_BUILD) return;
@@ -2795,9 +2798,10 @@ function viewCreate() {
     '<div class="field" data-e="date"><label for="ev-date">Date</label><input class="in" id="ev-date" type="date" value="' + esc(f.date) + '"><span class="msg" hidden></span></div>' +
     '<div class="row2"><div class="field"><label for="ev-st">Starts</label><input class="in" id="ev-st" type="time" value="' + esc(f.st) + '"></div><div class="field"><label for="ev-et">Ends</label><input class="in" id="ev-et" type="time" value="' + esc(f.et) + '"></div></div>' +
     '<p class="hint" id="ev-overnight"></p>' +
-    '<div class="field"><label for="ev-venue">Venue</label><select class="in" id="ev-venue">' + VENUES.map((v, i) => '<option value="' + i + '"' + (i === vi ? " selected" : "") + '>' + esc(v.n) + '</option>').join("") + '<option value="pin"' + (vi < 0 ? " selected" : "") + '>Somewhere else (tap the map)</option></select></div>' +
-    '<div class="field" id="ev-custom"' + (vi < 0 ? "" : " hidden") + ' data-e="venue"><label for="ev-vname">Venue name</label><input class="in" id="ev-vname" value="' + esc(vi < 0 ? f.venue : "") + '" placeholder="e.g. The Fitzroy Tavern"><span class="msg" hidden></span></div>' +
-    '<div class="map-wrap mini-map" id="ev-map"></div><p class="hint">Tap the map to move the pin. Works anywhere in London.</p>' +
+    '<div class="field"><label for="ev-venue">Venue</label><select class="in" id="ev-venue">' + VENUES.map((v, i) => '<option value="' + i + '"' + (i === vi ? " selected" : "") + '>' + esc(v.n) + '</option>').join("") + '<option value="pin"' + (vi < 0 ? " selected" : "") + '>Somewhere else (postcode or map)</option></select></div>' +
+    '<div class="field" id="ev-custom"' + (vi < 0 ? "" : " hidden") + ' data-e="venue"><label for="ev-vname">Venue name</label><input class="in" id="ev-vname" value="' + esc(vi < 0 ? f.venue : "") + '" placeholder="e.g. The Fitzroy Tavern"><span class="msg" hidden></span>' +
+    '<label for="ev-pc" style="margin-top:10px">Postcode</label><div class="pc-row"><input class="in" id="ev-pc" value="' + esc(f.postcode || "") + '" placeholder="e.g. WC1E 6BT" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" enterkeyhint="search"><button class="btn small line" type="button" id="ev-pc-go">Find</button></div><span class="hint" id="ev-pc-msg" aria-live="polite"></span></div>' +
+    '<div class="map-wrap mini-map" id="ev-map"></div><p class="hint">Type a postcode to drop the pin there, or tap the map to fine-tune it.</p>' +
     '<div class="row2"><div class="field" data-e="cost"><label for="ev-cost">Price (£)</label><input class="in" id="ev-cost" type="number" min="0" step="0.5" inputmode="decimal" value="' + esc(f.cost) + '"><span class="hint">0 for free</span><span class="msg" hidden></span></div>' +
     '<div class="field" data-e="capacity"><label for="ev-cap">Capacity</label><input class="in" id="ev-cap" type="number" min="1" inputmode="numeric" value="' + esc(f.capacity) + '" placeholder="No limit"><span class="msg" hidden></span></div></div>' +
     '<div class="field"><span class="lab">How people register</span><div class="chips" role="group"><button class="chip" type="button" data-regmode="fomo" aria-pressed="' + (f.reg !== "external") + '">On FOMO</button><button class="chip" type="button" data-regmode="external" aria-pressed="' + (f.reg === "external") + '">External ticket link</button></div></div>' +
@@ -2879,6 +2883,21 @@ function bindCreate() {
   const bindVal = (id, key, cb) => $(id).addEventListener("input", () => { S.form[key] = $(id).value; if (cb) cb(); prev(); });
   bindVal("ev-title", "title"); bindVal("ev-date", "date"); bindVal("ev-st", "st"); bindVal("ev-et", "et"); bindVal("ev-cost", "cost"); bindVal("ev-cap", "capacity"); bindVal("ev-url", "url"); bindVal("ev-desc", "desc"); bindVal("ev-vname", "venue");
   $("ev-type").addEventListener("change", () => { S.form.type = $("ev-type").value; prev(); });
+  const findPc = async () => {
+    const msg = $("ev-pc-msg"), raw = $("ev-pc").value;
+    if (!raw.trim()) { msg.textContent = ""; return; }
+    msg.textContent = "Looking it up…";
+    const r = await lookupPostcode(raw);
+    if (!r.ok) { msg.textContent = r.error; return; }
+    S.form.lat = r.lat; S.form.lng = r.lng; S.form.postcode = r.postcode; $("ev-pc").value = r.postcode;
+    if ($("ev-venue").value !== "pin") { $("ev-venue").value = "pin"; $("ev-custom").hidden = false; }
+    S.form.venue = $("ev-vname").value.trim();
+    mm.render(); mm.centerOn(r.lat, r.lng); prev();
+    msg.textContent = r.approx ? "Pinned roughly in the " + r.postcode.split(" ")[0] + " area" + ". Tap the map to put it on the exact spot." : "Pinned at " + r.postcode + (r.area ? ", " + r.area : "") + ".";
+  };
+  $("ev-pc-go").addEventListener("click", findPc);
+  $("ev-pc").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); findPc(); } });
+  $("ev-pc").addEventListener("change", findPc);
   $("ev-venue").addEventListener("change", () => {
     const v = $("ev-venue").value;
     $("ev-custom").hidden = v !== "pin";
@@ -2918,7 +2937,8 @@ async function saveEvent() {
   if (bad) { $("ev-err").textContent = "Fix the highlighted fields."; bad.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
   $("ev-err").textContent = "";
   const id = S.editing || rid("ce");
-  const ev = { title: f.title.trim(), type: f.type, start: e.start, end: e.end, venue: String(f.venue).trim(), lat: f.lat, lng: f.lng, img: f.img || "", cost: +f.cost || 0, capacity: f.capacity ? +f.capacity : null, reg: f.reg, url: f.reg === "external" ? f.url.trim() : "", desc: f.desc.trim(), updated: new Date().toISOString() };
+  const vname = String(f.venue).trim(), pc = $("ev-venue") && $("ev-venue").value === "pin" && f.postcode ? f.postcode : "";
+  const ev = { title: f.title.trim(), type: f.type, start: e.start, end: e.end, venue: pc && vname.toUpperCase().indexOf(pc) < 0 ? vname + ", " + pc : vname, postcode: pc, lat: f.lat, lng: f.lng, img: f.img || "", cost: +f.cost || 0, capacity: f.capacity ? +f.capacity : null, reg: f.reg, url: f.reg === "external" ? f.url.trim() : "", desc: f.desc.trim(), updated: new Date().toISOString() };
   const events = Object.assign({}, (S.ce[S.uid] && S.ce[S.uid].events) || {});
   events[id] = ev; S.ce[S.uid] = { events };
   const ok = await writeDoc("cevents/" + S.uid, { events });
@@ -3020,6 +3040,33 @@ function tabClick(b, d) {
 }
 
 boot();
+
+/* ---------- postcode lookup for committee events ----------
+   Exact location from postcodes.io (free, open data from the ONS). If that can't be reached,
+   fall back to the centre of the postcode district (WC1E, E20…) bundled with the page. */
+const OUTCODES = {"AL1":[51.74892,-0.3238],"AL2":[51.71902,-0.33576],"AL9":[51.74435,-0.19743],"BR1":[51.41203,0.02093],"BR2":[51.38725,0.02238],"BR3":[51.40464,-0.02974],"BR4":[51.37498,-0.00829],"BR5":[51.39172,0.1034],"BR6":[51.36512,0.09115],"BR7":[51.41501,0.06546],"BR8":[51.39868,0.17454],"CM13":[51.61496,0.33829],"CM14":[51.61864,0.29156],"CM15":[51.64486,0.30311],"CM16":[51.70057,0.12036],"CM4":[51.67511,0.38938],"CM5":[51.72223,0.24829],"CR0":[51.37326,-0.07797],"CR2":[51.34783,-0.08201],"CR3":[51.28838,-0.08264],"CR4":[51.40439,-0.15914],"CR5":[51.31095,-0.14134],"CR6":[51.30952,-0.05291],"CR7":[51.3993,-0.10672],"CR8":[51.33185,-0.11437],"CR9":[51.37366,-0.09831],"DA1":[51.44809,0.20953],"DA10":[51.44105,0.30213],"DA11":[51.43472,0.35049],"DA12":[51.42767,0.38733],"DA13":[51.37818,0.35136],"DA14":[51.42493,0.11203],"DA15":[51.44159,0.09807],"DA16":[51.46484,0.10618],"DA17":[51.48649,0.14878],"DA18":[51.49428,0.13629],"DA2":[51.43247,0.23369],"DA3":[51.38419,0.30843],"DA4":[51.38864,0.23239],"DA5":[51.44063,0.14556],"DA6":[51.45505,0.13929],"DA7":[51.46566,0.1462],"DA8":[51.47579,0.17556],"DA9":[51.44778,0.27734],"E1":[51.51739,-0.05935],"E10":[51.56772,-0.01437],"E11":[51.5687,0.01357],"E12":[51.55073,0.05307],"E13":[51.52787,0.02666],"E14":[51.50616,-0.01813],"E15":[51.54027,0.00321],"E16":[51.51035,0.03],"E17":[51.58696,-0.02084],"E18":[51.59278,0.02501],"E1W":[51.50946,-0.05889],"E2":[51.52964,-0.06262],"E20":[51.54632,-0.01065],"E22":[51.50168,-0.01478],"E3":[51.5281,-0.02483],"E4":[51.62174,-0.00573],"E5":[51.55927,-0.05357],"E6":[51.52653,0.05385],"E7":[51.54713,0.02749],"E8":[51.54379,-0.06611],"E9":[51.54401,-0.04173],"EC1A":[51.52053,-0.10418],"EC1M":[51.5213,-0.1023],"EC1N":[51.51991,-0.10881],"EC1R":[51.52504,-0.10834],"EC1V":[51.5268,-0.09778],"EC1Y":[51.52307,-0.09222],"EC2A":[51.52369,-0.08548],"EC2M":[51.51856,-0.08616],"EC2N":[51.5158,-0.0858],"EC2R":[51.51628,-0.0911],"EC2V":[51.51541,-0.09362],"EC2Y":[51.51949,-0.09353],"EC3A":[51.51477,-0.08026],"EC3M":[51.51185,-0.08209],"EC3N":[51.51174,-0.07661],"EC3R":[51.51053,-0.08342],"EC3V":[51.51301,-0.08574],"EC4A":[51.5158,-0.10818],"EC4M":[51.51432,-0.09951],"EC4N":[51.51281,-0.09135],"EC4R":[51.51087,-0.09041],"EC4V":[51.51248,-0.1],"EC4Y":[51.51291,-0.10895],"EN1":[51.65434,-0.06782],"EN10":[51.73813,-0.02315],"EN2":[51.66005,-0.09437],"EN3":[51.66023,-0.03655],"EN4":[51.64939,-0.16007],"EN5":[51.65013,-0.19812],"EN6":[51.69956,-0.17611],"EN7":[51.71225,-0.06977],"EN8":[51.69943,-0.03382],"EN9":[51.69631,0.01531],"GU21":[51.32117,-0.57975],"GU22":[51.3119,-0.55182],"GU23":[51.29346,-0.50654],"GU25":[51.40101,-0.57212],"HA0":[51.55102,-0.30527],"HA1":[51.58034,-0.33862],"HA2":[51.57375,-0.36136],"HA3":[51.59381,-0.32092],"HA4":[51.57029,-0.41067],"HA5":[51.59504,-0.38633],"HA6":[51.61192,-0.4225],"HA7":[51.61134,-0.31076],"HA8":[51.61136,-0.27381],"HA9":[51.56064,-0.28507],"HP3":[51.73565,-0.47168],"HP6":[51.67868,-0.59842],"HP8":[51.63812,-0.56961],"IG1":[51.55946,0.07343],"IG10":[51.64843,0.06602],"IG11":[51.53444,0.09388],"IG2":[51.57619,0.08157],"IG3":[51.56318,0.10281],"IG4":[51.58008,0.05124],"IG5":[51.5913,0.06346],"IG6":[51.59595,0.08766],"IG7":[51.61428,0.096],"IG8":[51.60894,0.03668],"IG9":[51.6258,0.04047],"KT1":[51.40761,-0.29828],"KT10":[51.36943,-0.35425],"KT11":[51.32835,-0.40259],"KT12":[51.37734,-0.40844],"KT13":[51.36818,-0.44909],"KT14":[51.33831,-0.48856],"KT15":[51.36371,-0.49588],"KT16":[51.38205,-0.51757],"KT17":[51.34134,-0.2492],"KT18":[51.31592,-0.2633],"KT19":[51.35274,-0.27082],"KT2":[51.41905,-0.29046],"KT20":[51.2864,-0.23102],"KT21":[51.31122,-0.30359],"KT22":[51.30196,-0.33961],"KT23":[51.27995,-0.37593],"KT24":[51.27063,-0.43067],"KT3":[51.39966,-0.25759],"KT4":[51.37838,-0.24305],"KT5":[51.39052,-0.28675],"KT6":[51.38743,-0.3028],"KT7":[51.38797,-0.33404],"KT8":[51.40154,-0.36289],"KT9":[51.36381,-0.3033],"N1":[51.53776,-0.09697],"N10":[51.59494,-0.1452],"N11":[51.61374,-0.139],"N12":[51.6149,-0.17762],"N13":[51.61802,-0.10424],"N14":[51.63443,-0.13094],"N15":[51.58278,-0.08099],"N16":[51.56252,-0.07663],"N17":[51.59775,-0.07125],"N18":[51.61382,-0.06664],"N19":[51.56526,-0.13004],"N1C":[51.53693,-0.12588],"N2":[51.59009,-0.16927],"N20":[51.62925,-0.17431],"N21":[51.63673,-0.09968],"N22":[51.59978,-0.1102],"N3":[51.60014,-0.19383],"N4":[51.57013,-0.10366],"N5":[51.5539,-0.09854],"N6":[51.57322,-0.14617],"N7":[51.55336,-0.1183],"N8":[51.58299,-0.11995],"N9":[51.62851,-0.05805],"NW1":[51.5334,-0.14385],"NW10":[51.54118,-0.24819],"NW11":[51.57837,-0.19741],"NW1W":[51.53079,-0.13541],"NW2":[51.55833,-0.22015],"NW26":[51.53406,-0.24813],"NW3":[51.55235,-0.17254],"NW4":[51.58734,-0.22423],"NW5":[51.55173,-0.14512],"NW6":[51.54219,-0.19624],"NW7":[51.61468,-0.23377],"NW8":[51.53225,-0.17429],"NW9":[51.58819,-0.25471],"RH8":[51.25111,0.00229],"RM1":[51.58289,0.18351],"RM10":[51.54489,0.15791],"RM11":[51.57118,0.21872],"RM12":[51.55257,0.20755],"RM13":[51.52506,0.19206],"RM14":[51.55699,0.2655],"RM15":[51.50884,0.27624],"RM16":[51.49306,0.34114],"RM17":[51.47971,0.32849],"RM18":[51.46761,0.37672],"RM19":[51.48292,0.24458],"RM2":[51.5843,0.20341],"RM20":[51.47852,0.2845],"RM3":[51.60194,0.22453],"RM4":[51.6412,0.15932],"RM5":[51.60128,0.16477],"RM6":[51.57585,0.1296],"RM7":[51.57518,0.16853],"RM8":[51.55713,0.12934],"RM9":[51.54023,0.13468],"SE1":[51.49916,-0.09144],"SE10":[51.48492,0.00076],"SE11":[51.48978,-0.11157],"SE12":[51.44453,0.01985],"SE13":[51.45964,-0.00966],"SE14":[51.47595,-0.04227],"SE15":[51.47282,-0.06556],"SE16":[51.49657,-0.05314],"SE17":[51.48835,-0.09339],"SE18":[51.48448,0.07234],"SE19":[51.41796,-0.08611],"SE1P":[51.49277,-0.08013],"SE2":[51.4899,0.11626],"SE20":[51.4122,-0.0595],"SE21":[51.43896,-0.08872],"SE22":[51.45444,-0.07238],"SE23":[51.44152,-0.04908],"SE24":[51.45578,-0.10037],"SE25":[51.39777,-0.07667],"SE26":[51.42776,-0.05464],"SE27":[51.43065,-0.10244],"SE28":[51.50192,0.10348],"SE3":[51.46897,0.02032],"SE4":[51.46101,-0.03517],"SE5":[51.47391,-0.09147],"SE6":[51.43853,-0.01649],"SE7":[51.48419,0.03404],"SE8":[51.482,-0.0296],"SE9":[51.44507,0.05493],"SL0":[51.52603,-0.51696],"SL3":[51.4987,-0.55132],"SL9":[51.59813,-0.55573],"SM1":[51.36713,-0.19281],"SM2":[51.35182,-0.1988],"SM3":[51.37129,-0.21625],"SM4":[51.39301,-0.19971],"SM5":[51.36877,-0.16903],"SM6":[51.36168,-0.14464],"SM7":[51.32294,-0.20126],"SW10":[51.48368,-0.18276],"SW11":[51.46875,-0.16283],"SW12":[51.44632,-0.14906],"SW13":[51.4763,-0.24326],"SW14":[51.46537,-0.267],"SW15":[51.45696,-0.2286],"SW16":[51.4212,-0.12924],"SW17":[51.43106,-0.16528],"SW18":[51.45151,-0.19143],"SW19":[51.42417,-0.20282],"SW1A":[51.50455,-0.13223],"SW1E":[51.49809,-0.1398],"SW1H":[51.49864,-0.13351],"SW1P":[51.48978,-0.13274],"SW1V":[51.4895,-0.14],"SW1W":[51.49267,-0.1511],"SW1X":[51.49824,-0.15675],"SW1Y":[51.50763,-0.13454],"SW2":[51.44928,-0.11979],"SW20":[51.41079,-0.22788],"SW3":[51.48936,-0.16588],"SW4":[51.46096,-0.13646],"SW5":[51.49161,-0.19186],"SW6":[51.47654,-0.20095],"SW7":[51.4963,-0.17697],"SW8":[51.4768,-0.13197],"SW9":[51.46935,-0.11389],"TN13":[51.27704,0.1836],"TN14":[51.29802,0.15716],"TN15":[51.30275,0.27472],"TN16":[51.29281,0.05197],"TW1":[51.45101,-0.32536],"TW10":[51.44767,-0.30296],"TW11":[51.42628,-0.33177],"TW12":[51.42298,-0.36973],"TW13":[51.43905,-0.4019],"TW14":[51.45335,-0.42163],"TW15":[51.43124,-0.45873],"TW16":[51.41573,-0.41686],"TW17":[51.39822,-0.4478],"TW18":[51.42777,-0.50435],"TW19":[51.45435,-0.49838],"TW2":[51.44638,-0.35434],"TW20":[51.42749,-0.55301],"TW3":[51.4683,-0.36396],"TW4":[51.46546,-0.38798],"TW5":[51.48247,-0.38629],"TW6":[51.47076,-0.44872],"TW7":[51.47286,-0.33604],"TW8":[51.4874,-0.30515],"TW9":[51.46962,-0.29235],"UB1":[51.51538,-0.37348],"UB10":[51.54932,-0.45206],"UB11":[51.51149,-0.44725],"UB18":[51.50072,-0.40266],"UB2":[51.49968,-0.37888],"UB3":[51.50515,-0.42437],"UB4":[51.52599,-0.40855],"UB5":[51.54306,-0.37651],"UB6":[51.53917,-0.34028],"UB7":[51.50438,-0.4692],"UB8":[51.53507,-0.47357],"UB9":[51.58645,-0.49233],"W10":[51.52319,-0.21661],"W11":[51.51227,-0.21529],"W12":[51.50837,-0.23959],"W13":[51.51301,-0.3212],"W14":[51.49469,-0.21024],"W1B":[51.51438,-0.14095],"W1C":[51.51444,-0.14911],"W1D":[51.51333,-0.1327],"W1F":[51.51349,-0.13644],"W1G":[51.51933,-0.14827],"W1H":[51.5177,-0.16121],"W1J":[51.50786,-0.14508],"W1K":[51.51112,-0.15103],"W1S":[51.51121,-0.14239],"W1T":[51.52029,-0.1367],"W1U":[51.5187,-0.15348],"W1W":[51.51921,-0.14087],"W2":[51.51522,-0.1852],"W3":[51.51107,-0.26753],"W4":[51.49117,-0.26413],"W5":[51.51337,-0.30219],"W6":[51.49256,-0.22843],"W7":[51.5119,-0.33597],"W8":[51.50119,-0.19425],"W9":[51.52491,-0.19262],"WC1A":[51.52028,-0.12009],"WC1B":[51.51945,-0.12613],"WC1E":[51.52172,-0.13283],"WC1H":[51.52686,-0.12568],"WC1N":[51.52292,-0.11973],"WC1R":[51.51961,-0.11578],"WC1V":[51.51803,-0.11653],"WC1X":[51.52665,-0.11495],"WC2A":[51.51619,-0.11415],"WC2B":[51.51494,-0.12047],"WC2E":[51.51188,-0.12332],"WC2H":[51.51332,-0.12735],"WC2N":[51.50913,-0.12492],"WC2R":[51.51175,-0.11814],"WD17":[51.66393,-0.40557],"WD18":[51.64906,-0.4146],"WD19":[51.63076,-0.39064],"WD23":[51.64532,-0.35798],"WD24":[51.67371,-0.39812],"WD25":[51.68721,-0.38767],"WD3":[51.64677,-0.48239],"WD4":[51.70649,-0.45687],"WD5":[51.70338,-0.4162],"WD6":[51.65746,-0.2756],"WD7":[51.68729,-0.30975]};
+const PC_RE = /^([A-Z]{1,2}\d[A-Z\d]?)\s*(\d[A-Z]{2})?$/;
+function inLondon(lat, lng) { return lat > 51.37 && lat < 51.65 && lng > -0.38 && lng < 0.16; }
+async function lookupPostcode(raw) {
+  const t = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, ""), m = t.match(/^([A-Z]{1,2}\d[A-Z\d]?)(\d[A-Z]{2})?$/);
+  if (!m) return { ok: false, error: "That doesn’t look like a UK postcode. Try something like WC1E 6BT." };
+  const out = m[1], full = m[2] ? out + " " + m[2] : "";
+  const done = (lat, lng, postcode, area, approx) => inLondon(lat, lng) ? { ok: true, lat: +lat.toFixed(5), lng: +lng.toFixed(5), postcode, area, approx }
+    : { ok: false, error: postcode + " is outside the London map. FOMO only covers London for now." };
+  try {
+    const ctl = typeof AbortController !== "undefined" ? new AbortController() : null; if (ctl) setTimeout(() => ctl.abort(), 6000);
+    const r = await fetch("https://api.postcodes.io/" + (full ? "postcodes/" + encodeURIComponent(full) : "outcodes/" + out), ctl ? { signal: ctl.signal } : {});
+    const j = await r.json();
+    if (j && j.status === 200 && j.result && j.result.latitude) return done(j.result.latitude, j.result.longitude, full || out, (j.result.admin_district && [].concat(j.result.admin_district)[0]) || "", !full);
+    if (j && j.status === 404) {
+      if (full && OUTCODES[out]) return done(OUTCODES[out][0], OUTCODES[out][1], full, "", true);
+      return { ok: false, error: "Couldn’t find " + (full || out) + ". Check it, or tap the map instead." };
+    }
+  } catch (e) { /* offline or blocked: use the bundled districts */ }
+  if (OUTCODES[out]) return done(OUTCODES[out][0], OUTCODES[out][1], full || out, "", true);
+  return { ok: false, error: "Couldn’t look up that postcode right now. Tap the map to place the pin." };
+}
+if (window.__fomoTest) window.__fomoTest.lookupPostcode = lookupPostcode;
 
 })();
 </script>
