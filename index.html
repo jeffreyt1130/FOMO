@@ -405,7 +405,13 @@ textarea.in { min-height: 90px; resize: vertical; line-height: 1.4; }
 .map-wrap .maplibregl-ctrl-bottom-right { bottom: 0; }
 .map-wrap .map-legend, .map-wrap .map-ctrls { z-index: 3; }
 .map-wrap .popwrap { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
-.gpin { width: 28px; height: 28px; border: 0; padding: 0; background: transparent; position: relative; cursor: pointer; display: grid; place-items: center; }
+.gpin { width: 28px; height: 28px; border: 0; padding: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
+.gcount { position: absolute; z-index: 2; top: -5px; right: -6px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--ink); color: #0A0910; font: 600 10px/17px var(--mono); text-align: center; box-shadow: 0 0 0 2px var(--bg); }
+.pop-more { border-top: 1px solid var(--line); margin-top: 2px; padding-top: 4px; max-height: 150px; overflow-y: auto; }
+.pop-more .sub { margin: 4px 0; }
+.pop-more button { display: flex; justify-content: space-between; gap: 8px; width: 100%; border: 0; background: none; color: var(--ink); text-align: left; padding: 6px 0; font-size: 12.5px; }
+.pop-more button small { color: var(--faint); font-size: 10px; flex: none; }
+.pop-more button[aria-current="true"] b { color: var(--primary); }
 .gpin .core { width: 11px; height: 11px; border-radius: 50%; background: var(--pc, var(--primary)); box-shadow: 0 0 0 2px var(--bg), 0 0 14px 2px var(--pc, var(--primary)); position: relative; z-index: 1; }
 .gpin .pulse { position: absolute; left: 50%; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; border: 1.5px solid var(--pc, var(--primary)); animation: pulse 2.2s ease-out infinite; }
 .gpin.live .pulse { animation-duration: .9s; }
@@ -525,6 +531,49 @@ textarea.in { min-height: 90px; resize: vertical; line-height: 1.4; }
   @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* people: profiles, who's going, notifications */
+.person-open { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; border: 0; background: none; padding: 0; text-align: left; color: var(--ink); }
+.person-open .who { flex: 1; min-width: 0; }
+.person-open .who b { display: block; font-weight: 600; }
+.person-open .who > span { display: block; font-size: 12.5px; color: var(--muted); }
+.person-open .badge { vertical-align: 2px; margin-left: 4px; }
+.tick-av { border: 0; background: none; padding: 0; border-radius: 50%; flex: none; }
+.who-going { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chip-person { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px 3px 3px; color: var(--ink); font-size: 12.5px; }
+.chip-person .pav { width: 24px; height: 24px; font-size: 10px; }
+.bell { position: relative; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--muted); display: grid; place-items: center; padding: 0; }
+.bell-n { position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--live); color: #fff; font-size: 10px; line-height: 17px; text-align: center; box-shadow: 0 0 10px var(--live); }
+.profile .sheet-body { padding-top: 0; }
+.prof-head { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 28px 20px 4px; margin: 0 !important; background: radial-gradient(70% 100% at 50% 0%, rgba(191, 168, 255, .16), transparent 70%); }
+.prof-head .sheet-x { top: 14px; right: 14px; }
+.pav.big { width: 86px; height: 86px; font-size: 28px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 4px var(--line), 0 0 30px rgba(191, 168, 255, .25); margin-bottom: 6px; }
+.prof-head .sheet-title { margin-top: 0 !important; }
+.prof-handle { color: var(--primary); font-size: 12px; }
+.prof-stats { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 18px; background: var(--surface-2); }
+.prof-stats div { display: flex; flex-direction: column; align-items: center; padding: 12px 4px; gap: 2px; }
+.prof-stats div + div { border-left: 1px solid var(--line); }
+.prof-stats b { font-size: 20px; }
+.prof-stats span { font: 500 9.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.profile .sub .mono { color: var(--muted); margin-left: 4px; }
+.mini-list { display: flex; flex-direction: column; gap: 8px; }
+.mini-ev { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 6px; text-align: left; color: var(--ink); }
+.mini-cover { width: 52px; height: 52px; border-radius: 10px; flex: none; overflow: hidden; background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--c) 60%, transparent), var(--surface)); }
+.mini-cover img { width: 100%; height: 100%; object-fit: cover; }
+.mini-txt { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.mini-txt b { font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini-txt small { color: var(--faint); font-size: 10.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notifs .sheet-body { padding-top: 22px; min-height: 40%; }
+.notif-head { display: flex; align-items: center; justify-content: space-between; }
+.notif-head .sheet-x { position: static; }
+.notif-head .sheet-title { margin-top: 0 !important; }
+.notif-list { display: flex; flex-direction: column; }
+.notif { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.notif .who { font-size: 14px; color: var(--muted); }
+.notif .who b { display: inline; color: var(--ink); }
+.notif .who small { display: block; color: var(--faint); font-size: 10.5px; margin-top: 2px; }
+.notif.new .who b::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); margin-right: 7px; vertical-align: 1px; }
+.sheet-body > .btn { width: auto; }
 
 html,body{margin:0}
 </style>
@@ -750,6 +799,7 @@ html,body{margin:0}
     <div class="app-head">
       <span class="wordmark" aria-label="fomo">fomo<i class="live-dot"></i></span>
       <span class="hint mono" id="head-hint"></span>
+      <button class="bell" type="button" id="bell" data-bell aria-label="Notifications"></button>
       <button class="me-btn" type="button" data-tab="me" id="me-btn" aria-label="Your profile"></button>
     </div>
     <div id="banner"></div>
@@ -874,7 +924,7 @@ function savePriv() {
   privRev = Math.max(Date.now(), privRev + 1);
   lsSet("fomo-priv", { follows: S.priv.follows, liked: S.priv.liked, disliked: S.priv.disliked, saved: S.priv.saved || {}, demo: S.priv.demo });
   if (S.priv.account && S.priv.account.username) S.accounts[S.priv.account.username] = prefsOf();
-  if (S.db && S.uid) writeDoc("data/users/" + S.uid + "/state", { follows: S.priv.follows, liked: S.priv.liked, disliked: S.priv.disliked, saved: S.priv.saved || {}, account: S.priv.account, demo: S.priv.demo || null, accounts: S.accounts, active: (S.priv.account && S.priv.account.username) || null, rev: privRev });
+  if (S.db && S.uid) writeDoc("data/users/" + S.uid + "/state", { follows: S.priv.follows, liked: S.priv.liked, disliked: S.priv.disliked, saved: S.priv.saved || {}, account: S.priv.account, demo: S.priv.demo || null, accounts: S.accounts, active: (S.priv.account && S.priv.account.username) || null, rev: privRev, notifSeen: S.notifSeen || "" });
 }
 /* Make acct the logged-in account on this Claude login: park the current one's data, load acct's, and publish acct's profile. */
 function switchAccount(acct, fresh) {
@@ -887,13 +937,33 @@ function switchAccount(acct, fresh) {
     const swapRegs = fresh || !!p.regs;
     if (swapRegs) S.regs[S.uid] = { events: (fresh ? {} : p.regs) || {} };
     if (S.db) {
-      if (swapRegs) writeDoc("regs/" + S.uid, { events: (fresh ? {} : p.regs) || {} });
-      writeDoc("profiles/" + S.uid, { name: acct.name, username: acct.username, year: acct.year, subject: acct.subject, dept: acct.dept, photo: acct.photo || "", at: new Date().toISOString() });
+      if (swapRegs) writeDoc("regs/" + S.uid, regsDoc((fresh ? {} : p.regs) || {}));
+      publishProfile(acct);
       S.profiles[S.uid] = { name: acct.name, username: acct.username, year: acct.year, subject: acct.subject, dept: acct.dept, photo: acct.photo || "" };
     }
   }
   savePriv();
 }
+
+/* Public profile: name, course and who you follow (so people can see their followers and get notified).
+   Your "going" list and saved events are public in regs/<uid> so friends can see them on your profile. */
+function publishProfile(acct) {
+  acct = acct || S.priv.account;
+  if (!S.db || !S.uid || !acct) return;
+  const prev = S.profiles[S.uid] || {}, follows = {};
+  Object.keys(S.priv.follows || {}).forEach((k) => { if (S.priv.follows[k]) follows[k] = typeof S.priv.follows[k] === "string" ? S.priv.follows[k] : "2026-01-01T00:00:00Z"; });
+  const doc = { name: acct.name, username: acct.username, year: acct.year, subject: acct.subject, dept: acct.dept, photo: acct.photo || "", at: (prev.username === acct.username && prev.at) || new Date().toISOString(), follows };
+  S.profiles[S.uid] = doc;
+  writeDoc("profiles/" + S.uid, doc);
+}
+function regsDoc(events) { return { events: events || {}, saved: Object.assign({}, S.priv.saved || {}) }; }
+function myRegEvents() { return (S.uid && S.regs[S.uid] && S.regs[S.uid].events) || {}; }
+function toggleFollow(id) {
+  if (!S.priv.follows[id]) S.priv.follows[id] = new Date().toISOString(); else delete S.priv.follows[id];
+  savePriv(); publishProfile();
+  return !!S.priv.follows[id];
+}
+S.notifSeen = "";
 
 /* ---------- capabilities + subscriptions ---------- */
 let renderQueued = false;
@@ -962,6 +1032,7 @@ function watchState(uid) {
           const disliked = onSwipe ? Object.assign({}, v.disliked || {}, S.priv.disliked || {}) : (v.disliked || {});
           if (onSwipe) { Object.keys(S.priv.liked || {}).forEach((k) => delete disliked[k]); Object.keys(S.priv.disliked || {}).forEach((k) => delete liked[k]); }
           S.accounts = v.accounts || S.accounts || {};
+          if (v.notifSeen && v.notifSeen > (S.notifSeen || "")) S.notifSeen = v.notifSeen;
           if (v.account && v.account.username && !S.accounts[v.account.username]) S.accounts[v.account.username] = { account: v.account, follows: v.follows || {}, liked: v.liked || {}, disliked: v.disliked || {}, saved: v.saved || {} };
           const sess = S.session || lsGet("fomo-session", null);
           if (sess && v.account && v.account.username !== sess && S.accounts[sess]) {
@@ -1274,20 +1345,22 @@ function renderPeople() {
   else $("people").innerHTML = plist.map((c) => {
     const why = "@" + esc(c.username || "");
     const on = following(c.id);
-    return '<div class="person">' + personAv({ name: c.name, key: c.id, photo: c.photo }) +
-      '<div class="who"><b>' + esc(c.name) + '</b><span>' + esc(c.info) + ' · ' + why + '</span></div>' +
+    const fy = S.profiles[c.id] && S.profiles[c.id].follows && S.profiles[c.id].follows[S.uid];
+    return '<div class="person"><button class="person-open" type="button" data-person="' + esc(c.id) + '">' + personAv({ name: c.name, key: c.id, photo: c.photo }) +
+      '<span class="who"><b>' + esc(c.name) + (fy ? ' <span class="badge ok">Follows you</span>' : "") + '</b><span>' + esc(c.info) + ' · ' + why + '</span></span></button>' +
       '<button class="btn small" type="button" data-follow="' + esc(c.id) + '" aria-pressed="' + on + '" aria-label="' + (on ? "Unfollow " : "Follow ") + esc(c.name) + '">' + (on ? "Following" : "Follow") + '</button></div>';
   }).join("");
   const n = Object.keys(S.priv.follows).filter((k) => S.priv.follows[k]).length;
   $("follow-next").textContent = followFrom === "app" ? "Done" + (n ? " · following " + n : "") : n ? "Continue · following " + n : "Continue";
   $("follow-skip").hidden = followFrom === "app";
+  if (S.person) renderPerson();
   $("inv-link").textContent = WEB ? location.origin + location.pathname.replace(/index\.html$/, "") : "fomo.example/join/" + ((me && me.username) || "friend");
 }
 $("people").addEventListener("click", (e) => {
+  const pp = e.target.closest("[data-person]"); if (pp) { openPerson(pp.dataset.person); return; }
   const b = e.target.closest("[data-follow]"); if (!b) return;
   const id = b.dataset.follow;
-  S.priv.follows[id] = !S.priv.follows[id]; if (!S.priv.follows[id]) delete S.priv.follows[id];
-  savePriv(); renderPeople();
+  toggleFollow(id); renderPeople();
   const nb = document.querySelector('[data-follow="' + CSS.escape(id) + '"]'); if (nb) nb.focus();
 });
 $("copy").addEventListener("click", () => {
@@ -1460,6 +1533,8 @@ function renderApp(mode) {
   $("me-btn").setAttribute("aria-current", S.tab === "me" ? "page" : "false");
   renderBanner();
   if (S.detail) renderDetail();
+  if (S.person) renderPerson();
+  renderBell(); checkFollowNotifs();
   document.querySelectorAll(".tabbar [data-tab]").forEach((b) => b.setAttribute("aria-current", b.dataset.tab === S.tab ? "page" : "false"));
   if (mode === "data" && S.formOpen) return;
   const tab = $("tab"), y = tab.scrollTop, keepX = {};
@@ -1675,7 +1750,7 @@ function renderDetail(fresh) {
     '<dt>Where</dt><dd>' + esc(e.venue || "See the listing") + (e.lat != null ? ' <span class="hint">· ' + esc(distLabel(e)) + '</span>' : "") + '</dd>' +
     '<dt>Price</dt><dd>' + (e.cost == null ? "On the listing" : priceHTML(e)) + '</dd>' +
     '<dt>Type</dt><dd>' + esc(e.type || "") + '</dd></dl>' +
-    '<div class="sheet-going">' + goingHTML(e) + '</div>' +
+    '<div class="sheet-going">' + goingHTML(e) + whoGoingHTML(e) + '</div>' +
     (e.desc ? '<p class="ev-desc">' + esc(e.desc) + '</p>' : "") +
     (ser ? seriesHTML(ser) : "") +
     '<div class="sheet-actions">' + saveBtn(e.id) + primaryBtn(e) + (e.owner && e.owner === S.uid ? '<button class="btn go line" type="button" data-edit="' + esc(e.id) + '">Edit</button>' : "") + '</div>' +
@@ -1692,7 +1767,7 @@ async function toggleReg(eid) {
   else { if (spotsLeft(e) === 0) { toast("That event is sold out."); return; } cur[eid] = new Date().toISOString(); }
   S.regs[S.uid] = { events: cur };
   scheduleRender();
-  const ok = await writeDoc("regs/" + S.uid, { events: cur });
+  const ok = await writeDoc("regs/" + S.uid, regsDoc(cur));
   savePriv();
   if (ok) toast(cur[eid] ? "You’re in. Keep your phone close, your Moment drops during the event." : "Okay, you’re out. No hard feelings.");
 }
@@ -1705,7 +1780,10 @@ function appAction(ev) {
   }
   const d = b.dataset;
   if (d.ticket) { if (!isReg(d.ticket)) toggleReg(d.ticket); return true; }
-  if (d.sheetclose !== undefined) { closeDetail(); return true; }
+  if (d.sheetclose !== undefined) { closeSheets(); return true; }
+  if (d.person) { openPerson(d.person); return true; }
+  if (d.pfollow) { if (!canAct()) return true; const on = toggleFollow(d.pfollow); toast(on ? "Following " + who(d.pfollow) + "." : "Unfollowed."); if ($("overlay").querySelector(".notifs")) openNotifs(); scheduleRender(); return true; }
+  if (d.bell !== undefined) { openNotifs(); return true; }
   if (d.snap) { closeDetail(); openCapture(d.snap); return true; }
   if (d.reg) { toggleReg(d.reg); return true; }
   if (d.save) { toggleSave(d.save); return true; }
@@ -1720,17 +1798,18 @@ function appAction(ev) {
   if (d.act === "interests") { openSwipeFromApp(); return true; }
   if (d.act === "saved") { S.tab = "feed"; S.scope = "all"; S.feedTab = "saved"; S.meView = "home"; renderApp(); return true; }
   if (d.act === "going") { S.tab = "feed"; S.scope = "all"; S.feedTab = "mine"; S.meView = "home"; renderApp(); return true; }
-  if (d.open) { closePop(); openDetail(d.open); return true; }
+  if (d.open) { closePop(); S.person = null; openDetail(d.open); return true; }
   if (d.mf) { S.mapF = d.mf; closePop(); renderApp("ui"); return true; }
   if (d.origin) { S.origin = d.origin; renderApp("ui"); return true; }
   if (d.near) { focusEvent(d.near); return true; }
   if (d.popclose !== undefined) { closePop(); return true; }
+  if (d.popev) { openPop(d.popev, true); return true; }
   return tabClick(b, d);
 }
 $("v-app").addEventListener("click", (ev) => { appAction(ev); });
 $("overlay").addEventListener("click", (ev) => {
-  if (!$("overlay").querySelector(".detail")) return;
-  if (ev.target.classList && ev.target.classList.contains("sheet")) { closeDetail(); return; }
+  if (!$("overlay").querySelector(".detail, .profile, .notifs")) return;
+  if (ev.target.classList && ev.target.classList.contains("sheet")) { closeSheets(); return; }
   appAction(ev);
 });
 
@@ -1914,7 +1993,7 @@ function mountMap() {
   const keep = S.map && S.map.vb ? Object.assign({}, S.map.vb) : null;
   S.map = makeMap(el, {
     legend: true, width: 640, view: S.mapView,
-    pins: () => mapEvents().map((e) => ({ id: e.id, lat: e.lat, lng: e.lng, color: status(e) === "live" ? "var(--live)" : typeColor(e), live: status(e) === "live", sel: S.pop && S.pop.id === e.id, label: e.title + ", " + fmtRange(e) })),
+    pins: () => mapGroups().map((g) => { const e = g[0], live = g.some((x) => status(x) === "live"); return { id: e.id, lat: e.lat, lng: e.lng, count: g.length, color: live ? "var(--live)" : typeColor(e), live, sel: S.pop && S.pop.lead === e.id, label: g.length > 1 ? g.length + " events at " + (e.venue || "this venue") : e.title + ", " + fmtRange(e) }; }),
     onPinEnter: (id, sticky) => openPop(id, sticky),
     onPinLeave: (force) => { if (force || !(S.pop && S.pop.sticky)) setTimeout(() => { if (!popHover && !(S.pop && S.pop.sticky)) closePop(); }, 120); },
     onPan: () => positionPop(), onMove: () => positionPop(), onBlank: () => closePop()
@@ -1929,10 +2008,23 @@ function renderNearby() {
   el.innerHTML = list.length ? list.map(({ e }) => '<button type="button" data-near="' + esc(e.id) + '"><span class="sw" style="--c:' + (status(e) === "live" ? "var(--live)" : typeColor(e)) + '"></span><span><b>' + esc(e.title) + '</b><small class="mono">' + esc(orgName(e)) + ' · ' + until(e) + '</small></span><span class="d mono">' + distLabel(e) + '</span></button>').join("")
     : '<div class="empty"><p>No events in this window. Try “All upcoming”.</p></div>';
 }
+/* One pin per venue: events at the same spot share a pin (with a count) instead of being nudged apart,
+   so every dot sits exactly where the event is. */
+let pinGroups = {}, pinOf = {};
+function mapGroups() {
+  const by = {}, order = [];
+  mapEvents().slice().sort((a, b) => (status(b) === "live") - (status(a) === "live") || a.t0 - b.t0).forEach((e) => {
+    const k = e.lat.toFixed(4) + "," + e.lng.toFixed(4);
+    if (!by[k]) { by[k] = []; order.push(k); } by[k].push(e);
+  });
+  pinGroups = {}; pinOf = {};
+  return order.map((k) => { const g = by[k]; pinGroups[g[0].id] = g; g.forEach((e) => { pinOf[e.id] = g[0].id; }); return g; });
+}
 let popHover = false;
 function openPop(id, sticky) {
   const e = allEvents().find((x) => x.id === id); if (!e || !S.map) return;
-  S.pop = { id, sticky: !!sticky || !!(S.pop && S.pop.id === id && S.pop.sticky) };
+  const lead = pinOf[id] || id, group = pinGroups[lead] || [e];
+  S.pop = { id, lead, sticky: !!sticky || !!(S.pop && S.pop.lead === lead && S.pop.sticky) };
   const wrap = S.map.el.querySelector(".popwrap"), fr = friendsAt(e), s = socOf(e), mineReg = isReg(e.id) || e.demo, left = spotsLeft(e);
   const ext = e.reg === "external" && e.url;
   const d = km(ORIGINS[S.origin], e), travel = d < 2.5 ? Math.max(1, Math.round(d / 4.8 * 60)) + " min walk" : "~" + Math.round(d * 4 + 10) + " min by Tube";
@@ -1941,16 +2033,17 @@ function openPop(id, sticky) {
     '<h4>' + esc(e.title) + '</h4><span class="kicker"><i class="cdot"></i>' + esc(orgName(e)) + '</span>' +
     '<p class="mono pop-time">' + (e.allDay ? esc(dayF.format(new Date(e.t0))) : esc(timeF.format(new Date(e.t0))) + "–" + esc(timeF.format(new Date(e.t1)))) + ' · ' + esc(travel) + '</p>' +
     '<p class="pop-fr">' + (fr.length ? esc(fr.slice(0, 2).map((f) => f.name.split(" ")[0]).join(", ")) + (goingCount(e) > Math.min(fr.length, 2) ? " +" + (goingCount(e) - Math.min(fr.length, 2)) : "") + " going" : goingCount(e) ? goingCount(e) + " going" : "No one yet. Be first.") + '</p>' +
-    '<div class="ev-actions"><button class="btn go small" type="button" data-open="' + esc(e.id) + '">See event</button>' + saveBtn(e.id) + '</div></div>';
+    '<div class="ev-actions"><button class="btn go small" type="button" data-open="' + esc(e.id) + '">See event</button>' + saveBtn(e.id) + '</div>' +
+    (group.length > 1 ? '<div class="pop-more"><p class="sub">' + group.length + ' events here' + (e.venue ? ' · ' + esc(e.venue) : "") + '</p>' + group.map((x) => '<button type="button" data-popev="' + esc(x.id) + '"' + (x.id === e.id ? ' aria-current="true"' : "") + '><b>' + esc(x.title) + '</b><small class="mono">' + esc(until(x)) + '</small></button>').join("") + '</div>' : "") + '</div>';
   const pop = wrap.firstChild;
   pop.addEventListener("pointerenter", () => { popHover = true; });
   pop.addEventListener("pointerleave", () => { popHover = false; if (!(S.pop && S.pop.sticky)) closePop(); });
-  S.map.el.querySelectorAll(".pin, .gpin").forEach((p) => p.classList.toggle("sel", p.dataset.pin === id));
+  S.map.el.querySelectorAll(".pin, .gpin").forEach((p) => p.classList.toggle("sel", p.dataset.pin === lead));
   positionPop();
 }
 function positionPop() {
   if (!S.pop || !S.map) return;
-  const e = allEvents().find((x) => x.id === S.pop.id), pop = S.map.el.querySelector(".pop"); if (!e || !pop) return;
+  const e = allEvents().find((x) => x.id === (S.pop.lead || S.pop.id)), pop = S.map.el.querySelector(".pop"); if (!e || !pop) return;
   const p = S.map.screenId(e.id, e.lat, e.lng), sz = S.map.size(), pw = pop.offsetWidth, ph = pop.offsetHeight;
   let x = p.x - pw / 2, y;
   if (p.y - ph - 16 >= 8) y = p.y - ph - 16;
@@ -1999,7 +2092,8 @@ function activity() {
 let tickIdx = 0;
 function tickItem(a) {
   const name = a.soc ? socOf({ soc: a.soc }).name : who(a.u);
-  return personAv({ name: name || "FOMO", key: a.soc || a.u, photo: !a.soc && S.profiles[a.u] && S.profiles[a.u].photo }) +
+  const av = personAv({ name: name || "FOMO", key: a.soc || a.u, photo: !a.soc && S.profiles[a.u] && S.profiles[a.u].photo });
+  return (!a.soc && S.profiles[a.u] ? '<button type="button" class="tick-av" data-person="' + esc(a.u) + '" aria-label="View ' + esc(name) + '’s profile">' + av + '</button>' : av) +
     '<p id="tick-text">' + a.text + ' <small>· ' + ago(a.t) + '</small></p>';
 }
 function tickerHTML() {
@@ -2025,9 +2119,10 @@ function toggleSave(id) {
   const on = !S.priv.saved[id];
   if (on) S.priv.saved[id] = new Date().toISOString(); else delete S.priv.saved[id];
   savePriv();
+  if (S.db && S.uid) writeDoc("regs/" + S.uid, regsDoc(myRegEvents()));
   document.querySelectorAll('[data-save="' + CSS.escape(id) + '"]').forEach((b) => { b.outerHTML = saveBtn(id); });
   const nb = document.querySelector('[data-save="' + CSS.escape(id) + '"]'); if (nb) { nb.classList.add("pop-in"); nb.focus({ preventScroll: true }); }
-  toast(on ? "Saved. Find it under What’s on → Saved." : "Removed from saved.");
+  toast(on ? "Saved. Your friends can see you’re interested." : "Removed from saved.");
   if (S.tab === "feed" && S.feedTab === "saved") renderApp("ui");
 }
 
@@ -2039,6 +2134,90 @@ document.addEventListener("input", (ev) => {
   clearTimeout(qTimer);
   qTimer = setTimeout(() => { S.q = v.trim(); S.feedN = 0; renderApp("ui"); }, 180);
 });
+
+/* ---------- people: profiles, followers, notifications ---------- */
+function closeSheets() { S.detail = null; S.person = null; const o = $("overlay"); if (o.querySelector(".detail, .profile, .notifs")) o.innerHTML = ""; }
+function followersOf(uid) {
+  return Object.keys(S.profiles).filter((u) => u !== uid && S.profiles[u] && S.profiles[u].follows && S.profiles[u].follows[uid])
+    .map((u) => ({ u, at: S.profiles[u].follows[uid] })).sort((a, b) => (b.at > a.at ? 1 : -1));
+}
+function followingOf(uid) {
+  if (uid === S.uid) return Object.keys(S.priv.follows || {}).filter((k) => S.priv.follows[k] && S.profiles[k]);
+  const f = (S.profiles[uid] && S.profiles[uid].follows) || {};
+  return Object.keys(f).filter((k) => S.profiles[k]);
+}
+function whoGoingHTML(e) {
+  const us = regUids(e.id).filter((u) => S.profiles[u]);
+  if (!us.length) return "";
+  us.sort((a, b) => (following(b) ? 1 : 0) - (following(a) ? 1 : 0));
+  return '<div class="who-going">' + us.slice(0, 12).map((u) => '<button type="button" class="chip-person" data-person="' + esc(u) + '">' + personAv({ name: who(u), key: u, photo: S.profiles[u].photo }) + '<span>' + esc(u === S.uid ? "You" : who(u).split(" ")[0]) + '</span></button>').join("") + (us.length > 12 ? '<span class="hint">+' + (us.length - 12) + '</span>' : "") + '</div>';
+}
+function openPerson(uid) { S.detail = null; S.person = uid; renderPerson(true); }
+function miniEv(e) {
+  const img = e.img || socImg(e.soc, "bg");
+  return '<button type="button" class="mini-ev" data-open="' + esc(e.id) + '" style="--c:' + evColor(e) + '"><span class="mini-cover">' + (img ? '<img alt="" loading="lazy" src="' + esc(img) + '">' : "") + '</span><span class="mini-txt"><b>' + esc(e.title) + '</b><small class="mono">' + esc(dayF.format(new Date(e.t0))) + ' · ' + esc(orgName(e)) + '</small></span></button>';
+}
+function personSection(title, list, empty) {
+  return '<p class="sub">' + title + ' <span class="mono">' + list.length + '</span></p>' + (list.length ? '<div class="mini-list">' + list.slice(0, 8).map(miniEv).join("") + (list.length > 8 ? '<p class="hint">and ' + (list.length - 8) + ' more</p>' : "") + '</div>' : '<p class="hint">' + empty + '</p>');
+}
+function renderPerson(fresh) {
+  const uid = S.person, o = $("overlay"), p = S.profiles[uid];
+  if (!p) { closeSheets(); return; }
+  if (!fresh && !o.querySelector(".profile")) { S.person = null; return; }
+  const body = o.querySelector(".sheet-body"), y = body ? body.scrollTop : 0;
+  const t = now(), evs = {}; allEvents().forEach((e) => { evs[e.id] = e; });
+  const r = S.regs[uid] || {}, regIds = Object.keys(r.events || {}).filter((id) => evs[id]);
+  const attended = regIds.map((id) => evs[id]).filter((e) => e.t1 <= t).sort((a, b) => b.t0 - a.t0);
+  const going = regIds.map((id) => evs[id]).filter((e) => e.t1 > t).sort((a, b) => a.t0 - b.t0);
+  const savedSrc = uid === S.uid ? (S.priv.saved || {}) : (r.saved || {});
+  const saved = Object.keys(savedSrc).filter((id) => evs[id] && evs[id].t1 > t && !(r.events || {})[id]).map((id) => evs[id]).sort((a, b) => a.t0 - b.t0);
+  const fol = followersOf(uid), fing = followingOf(uid), me = uid === S.uid, followsMe = !me && p.follows && p.follows[S.uid];
+  const mutual = !me && following(uid) && followsMe;
+  const socs = {}; attended.concat(going).forEach((e) => { if (S.societies[e.soc]) socs[e.soc] = (socs[e.soc] || 0) + 1; });
+  const topSocs = Object.keys(socs).sort((a, b) => socs[b] - socs[a]).slice(0, 4);
+  o.innerHTML = '<div class="sheet profile' + (fresh ? " enter" : "") + '" role="dialog" aria-modal="true" aria-label="' + esc(p.name) + '"><div class="sheet-body">' +
+    '<div class="prof-head"><button class="sheet-x" type="button" data-sheetclose aria-label="Close">×</button>' +
+    personAv({ name: p.name, key: uid, photo: p.photo }).replace('class="pav"', 'class="pav big"') +
+    '<h2 class="sheet-title">' + esc(p.name) + '</h2><p class="mono prof-handle">@' + esc(p.username || "") + '</p>' +
+    '<p class="hint">' + esc([p.subject, p.year].filter(Boolean).join(" · ")) + '</p>' +
+    (mutual ? '<span class="badge ok">Friends</span>' : followsMe ? '<span class="badge ok">Follows you</span>' : "") + '</div>' +
+    '<div class="prof-stats"><div><b class="mono">' + attended.length + '</b><span>Attended</span></div><div><b class="mono">' + going.length + '</b><span>Going</span></div><div><b class="mono">' + fol.length + '</b><span>Followers</span></div><div><b class="mono">' + fing.length + '</b><span>Following</span></div></div>' +
+    (me ? '<p class="hint" style="text-align:center">This is how other people see your profile.</p>' : '<button class="btn' + (following(uid) ? " line" : "") + '" type="button" data-pfollow="' + esc(uid) + '">' + (following(uid) ? "Following ✓" : followsMe ? "Follow back" : "Follow") + '</button>') +
+    (topSocs.length ? '<p class="sub">Usually at</p><div class="tags">' + topSocs.map((id) => '<span class="tag" style="--c:' + bucketColor(socBucket(id)) + '">' + esc(S.societies[id].name) + '</span>').join("") + '</div>' : "") +
+    personSection("Going to", going, (me ? "You haven’t" : esc(p.name.split(" ")[0]) + " hasn’t") + " picked anything coming up yet.") +
+    personSection("Interested in", saved, "No saved events yet.") +
+    personSection("Been to", attended, "Nothing yet this term.") +
+    (fol.length ? '<p class="sub">Followers</p><div class="who-going">' + fol.slice(0, 16).map((f) => '<button type="button" class="chip-person" data-person="' + esc(f.u) + '">' + personAv({ name: who(f.u), key: f.u, photo: S.profiles[f.u].photo }) + '<span>' + esc(f.u === S.uid ? "You" : who(f.u).split(" ")[0]) + '</span></button>').join("") + '</div>' : "") +
+    '</div></div>';
+  const nb = o.querySelector(".sheet-body"); if (nb && !fresh) nb.scrollTop = y;
+}
+/* follow notifications */
+const notified = new Set();
+function newFollowers() { return S.uid ? followersOf(S.uid).filter((f) => f.at > (S.notifSeen || "")) : []; }
+function renderBell() {
+  const b = $("bell"); if (!b) return;
+  const n = newFollowers().length;
+  b.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg>' + (n ? '<span class="bell-n mono">' + n + '</span>' : "");
+  b.setAttribute("aria-label", n ? n + " new notifications" : "Notifications");
+}
+let notifPrimed = false;
+function checkFollowNotifs() {
+  if (!S.uid || !S.loaded.profiles) return;
+  const fresh = newFollowers().filter((f) => !notified.has(f.u + f.at));
+  fresh.forEach((f) => notified.add(f.u + f.at));
+  if (!notifPrimed) { notifPrimed = true; if (fresh.length) toast(fresh.length === 1 ? who(fresh[0].u) + " followed you." : fresh.length + " new followers."); return; }
+  if (fresh.length) toast(who(fresh[0].u) + " followed you" + (following(fresh[0].u) ? "." : ". Tap the bell to follow back."));
+}
+function openNotifs() {
+  const list = S.uid ? followersOf(S.uid) : [], seen = S.notifSeen || "";
+  $("overlay").innerHTML = '<div class="sheet notifs enter" role="dialog" aria-modal="true" aria-label="Notifications"><div class="sheet-body">' +
+    '<div class="notif-head"><h2 class="sheet-title">Notifi<em>cations</em></h2><button class="sheet-x" type="button" data-sheetclose aria-label="Close">×</button></div>' +
+    (list.length ? '<div class="notif-list">' + list.map((f) => '<div class="notif' + (f.at > seen ? " new" : "") + '"><button type="button" class="person-open" data-person="' + esc(f.u) + '">' + personAv({ name: who(f.u), key: f.u, photo: S.profiles[f.u].photo }) + '<span class="who"><b>' + esc(who(f.u)) + '</b> followed you<small class="mono">' + esc(ago(Date.parse(f.at) || 0)) + '</small></span></button>' +
+      '<button class="btn small' + (following(f.u) ? " line" : "") + '" type="button" data-pfollow="' + esc(f.u) + '">' + (following(f.u) ? "Following" : "Follow back") + '</button></div>').join("") + '</div>'
+      : '<div class="empty"><p>No notifications yet. When someone follows you, it shows up here.</p></div>') +
+    '</div></div>';
+  S.notifSeen = new Date().toISOString(); savePriv(); renderBell();
+}
 
 /* ---------- street map: MapLibre drawing OpenStreetMap vector tiles that are published with this page ----------
    Tiles: OpenStreetMap data (© OpenStreetMap contributors, ODbL), Greater London extract dated 14 Oct 2026,
@@ -2195,24 +2374,16 @@ GLMap.prototype.render = function () {
     } else m.setLngLat([p.lng, p.lat]);
     const el = m.getElement();
     el.style.setProperty("--pc", p.color);
+    let cb = el.querySelector(".gcount");
+    if (p.count > 1) { if (!cb) { cb = document.createElement("span"); cb.className = "gcount"; el.appendChild(cb); } cb.textContent = p.count; } else if (cb) cb.remove();
     el.classList.toggle("live", !!p.live); el.classList.toggle("sel", !!p.sel);
     el.setAttribute("aria-label", p.label);
   });
   Object.keys(this.markers).forEach((id) => { if (!seen[id]) { this.markers[id].remove(); delete this.markers[id]; } });
   this.fan();
 };
-// spread pins that would sit on top of each other at this zoom
-GLMap.prototype.fan = function () {
-  const ids = Object.keys(this.markers), placed = [];
-  this.offsets = {};
-  ids.forEach((id) => {
-    const ll = this.markers[id].getLngLat(), p = this.map.project(ll);
-    const n = placed.filter((q) => Math.hypot(q.x - p.x, q.y - p.y) < 16).length;
-    const off = n ? [Math.cos(n * 2.2) * 18 * (1 + Math.floor((n - 1) / 6) * 0.9), Math.sin(n * 2.2) * 18 * (1 + Math.floor((n - 1) / 6) * 0.9)] : [0, 0];
-    placed.push(p);
-    this.offsets[id] = off; this.markers[id].setOffset(off);
-  });
-};
+// pins stay exactly on their venue; events sharing a venue share one pin (see mapGroups)
+GLMap.prototype.fan = function () { this.offsets = {}; };
 GLMap.prototype.destroy = function () { try { this.mq.removeEventListener("change", this.restyle); this.mo.disconnect(); this.map.remove(); } catch (e) {} };
 function makeMap(el, opts) {
   if (glSupported()) { try { const m = new GLMap(el, opts); m.gl = true; return m; } catch (e) {} }
@@ -2480,7 +2651,7 @@ function viewMe() {
   const me = myProfile() || {}, c = S.committee[S.uid];
   let html = '<div class="card pcard">' + personAv({ name: me.name || "You", key: S.uid || "me", photo: me.photo }).replace('class="pav"', 'class="pav" style="width:64px;height:64px;font-size:20px;background:' + HUES[hashStr(S.uid || "me") % 8] + '"') +
     '<div><b>' + esc(me.name || "You") + '</b><span>@' + esc(me.username || "") + ' · ' + esc([me.subject, me.year].filter(Boolean).join(", ")) + '</span></div></div>' +
-    '<div class="ev-actions" style="margin-top:12px"><button class="btn small line" type="button" data-act="interests">Edit interests</button><button class="btn small line" type="button" data-act="friends">Find friends</button><button class="btn small line" type="button" data-act="going">You’re in (' + Object.keys((S.uid && S.regs[S.uid] && S.regs[S.uid].events) || {}).length + ')</button><button class="btn small line" type="button" data-act="saved">Saved (' + Object.keys(S.priv.saved || {}).length + ')</button></div>';
+    '<div class="ev-actions" style="margin-top:12px"><button class="btn small" type="button" data-person="' + esc(S.uid || "") + '">View my profile</button><button class="btn small line" type="button" data-bell>Followers (' + (S.uid ? followersOf(S.uid).length : 0) + ')</button><button class="btn small line" type="button" data-act="interests">Edit interests</button><button class="btn small line" type="button" data-act="friends">Find friends</button><button class="btn small line" type="button" data-act="going">You’re in (' + Object.keys((S.uid && S.regs[S.uid] && S.regs[S.uid].events) || {}).length + ')</button><button class="btn small line" type="button" data-act="saved">Saved (' + Object.keys(S.priv.saved || {}).length + ')</button></div>';
   // committee
   html += '<p class="sub">Society committee</p><div class="card">';
   if (verified(S.uid)) {
