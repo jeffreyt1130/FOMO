@@ -217,11 +217,11 @@ textarea.in { min-height: 90px; resize: vertical; line-height: 1.4; }
 .tabview { padding-bottom: 120px; }
 .tabbar {
   position: absolute; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 10;
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; padding: 6px;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; padding: 5px;
   background: var(--glass); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid var(--glass-line); border-radius: 26px; box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
 }
-.tabbar button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500; color: var(--faint); padding: 8px 0 6px; border-radius: 20px; position: relative; transition: color .2s, background .2s; }
+.tabbar button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; min-width: 0; font-weight: 500; color: var(--faint); padding: 8px 0 6px; border-radius: 20px; position: relative; transition: color .2s, background .2s; }
 .tabbar button svg { width: 22px; height: 22px; }
 .tabbar button[aria-current="page"] { color: var(--ink); background: rgba(255, 255, 255, .06); }
 .tabbar button[aria-current="page"] svg { color: var(--primary); filter: drop-shadow(0 0 6px rgba(191, 168, 255, .5)); }
@@ -575,6 +575,7 @@ textarea.in { min-height: 90px; resize: vertical; line-height: 1.4; }
 .notif .who small { display: block; color: var(--faint); font-size: 10.5px; margin-top: 2px; }
 .notif.new .who b::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); margin-right: 7px; vertical-align: 1px; }
 .sheet-body > .btn { width: auto; }
+.person .who b .badge { display: inline-block; font-weight: 500; } .person .who > span span { display: inline; font-size: inherit; color: inherit; }
 
 html,body{margin:0}
 </style>
@@ -810,6 +811,7 @@ html,body{margin:0}
       <button type="button" data-tab="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Map</button>
       <button type="button" data-tab="snaps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Moments<span class="dot" id="snap-dot" hidden></span></button>
       <button type="button" data-tab="vote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l4.5 4.5L20 6"/></svg>Vote</button>
+      <button type="button" data-tab="people"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="16.5" r="3"/><path d="m21.5 20.5-1.8-1.8"/></svg>People</button>
       <button type="button" data-tab="rank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Ranks</button>
     </nav>
   </section>
@@ -821,7 +823,7 @@ html,body{margin:0}
 <script>window.FOMO_CONFIG = {"url": "https://ckrgyymdcxrkbqbrhggj.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcmd5eW1kY3hya2JxYnJoZ2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxNTk1ODAsImV4cCI6MjEwNzczNTU4MH0.XVeUj1BzIB1AKICjzbd9irOVlooOIs6RnGiTkpkqauk"};
 /* Always run the latest build: GitHub Pages lets browsers cache this page for 10 minutes,
    so check the live copy and reload once if a newer version has been published. */
-window.FOMO_BUILD = "20261016182513";
+window.FOMO_BUILD = "20261016183538";
 (function () {
   try {
     if (sessionStorage.getItem("fomo-reloaded") === window.FOMO_BUILD) return;
@@ -1557,7 +1559,7 @@ function renderApp(mode) {
   if (S.tab === "map" && mode === "data" && S.map && S.map.el && tab.contains(S.map.el)) { S.map.render(); renderNearby(); return; }
   [S.map, S.miniMap].forEach((m) => { if (m && m.destroy) m.destroy(); }); S.miniMap = null;
   if (S.map && S.map.gl) S.map = null;
-  tab.innerHTML = S.tab === "feed" ? viewFeed() : S.tab === "map" ? viewMap() : S.tab === "snaps" ? viewSnaps() : S.tab === "vote" ? viewVote() : S.tab === "rank" ? viewRanks() : viewMe();
+  tab.innerHTML = S.tab === "feed" ? viewFeed() : S.tab === "map" ? viewMap() : S.tab === "snaps" ? viewSnaps() : S.tab === "vote" ? viewVote() : S.tab === "rank" ? viewRanks() : S.tab === "people" ? viewPeople() : viewMe();
   if (S.tab === "map") mountMap();
   if (S.tab === "me") afterMe();
   tab.querySelectorAll(".scroller, .tpls").forEach((r, i) => { r.scrollLeft = keepX[i] || 0; });
@@ -1806,6 +1808,8 @@ function appAction(ev) {
   if (d.ft) { S.feedTab = d.ft; S.F.ef = ""; S.feedN = 0; renderApp("ui"); return true; }
   if (d.fk) { S.F[d.fk] = S.F[d.fk] === d.fv ? "" : d.fv; if (S.F.ef) S.feedTab = "all"; S.feedN = 0; renderApp("ui"); return true; }
   if (d.act === "clear") { S.F = { sf: "", ef: "", cf: "" }; S.feedTab = "all"; S.feedN = 0; renderApp("ui"); return true; }
+  if (d.act === "clearpq") { S.pq = ""; renderApp("ui"); const q = $("people-q"); if (q) q.focus(); return true; }
+  if (d.follow) { if (!canAct()) return true; const on = toggleFollow(d.follow); toast(on ? "Following " + who(d.follow) + "." : "Unfollowed."); renderApp("ui"); return true; }
   if (d.act === "clearq") { S.q = ""; S.feedN = 0; renderApp("ui"); const q = $("feed-q"); if (q) q.focus(); return true; }
   if (d.act === "more") { S.feedN = (S.feedN || FEED_PAGE) + FEED_PAGE; renderApp("ui"); return true; }
   if (d.act === "friends") { openFollowFromApp(); return true; }
@@ -2143,6 +2147,7 @@ function toggleSave(id) {
 /* search: re-render as you type, debounced */
 let qTimer = null;
 document.addEventListener("input", (ev) => {
+  if (ev.target && ev.target.id === "people-q") { const v = ev.target.value; clearTimeout(qTimer); qTimer = setTimeout(() => { S.pq = v.trim(); renderApp("ui"); }, 150); return; }
   if (!ev.target || ev.target.id !== "feed-q") return;
   const v = ev.target.value;
   clearTimeout(qTimer);
@@ -2231,6 +2236,40 @@ function openNotifs() {
       : '<div class="empty"><p>No notifications yet. When someone follows you, it shows up here.</p></div>') +
     '</div></div>';
   S.notifSeen = new Date().toISOString(); savePriv(); renderBell();
+}
+
+/* ---------- people tab: search everyone on FOMO ---------- */
+function personRow(u) {
+  const p = S.profiles[u], fy = p.follows && p.follows[S.uid], on = following(u);
+  const n = Object.keys((S.regs[u] && S.regs[u].events) || {}).length;
+  return '<div class="person"><button class="person-open" type="button" data-person="' + esc(u) + '">' + personAv({ name: p.name, key: u, photo: p.photo }) +
+    '<span class="who"><b>' + esc(p.name) + (on && fy ? ' <span class="badge ok">Friends</span>' : fy ? ' <span class="badge ok">Follows you</span>' : "") + '</b><span><span class="mono">@' + esc(p.username || "") + '</span> · ' + esc([p.subject, p.year].filter(Boolean).join(", ") || "UCL") + (n ? ' · ' + n + (n === 1 ? ' event' : ' events') : "") + '</span></span></button>' +
+    (u === S.uid ? '<span class="hint">You</span>' : '<button class="btn small' + (on ? " line" : "") + '" type="button" data-follow="' + esc(u) + '" aria-pressed="' + on + '">' + (on ? "Following" : fy ? "Follow back" : "Follow") + '</button>') + '</div>';
+}
+function viewPeople() {
+  const me = myProfile() || {}, q = normQ(S.pq || "").replace(/^@/, "");
+  const all = Object.keys(S.profiles).filter((u) => S.profiles[u] && S.profiles[u].name);
+  let body;
+  if (q) {
+    const hits = all.filter((u) => { const p = S.profiles[u]; return normQ(p.name + " " + p.username + " " + (p.subject || "")).split(/\s+/).some((w) => w.startsWith(q)) || normQ(p.name + " @" + p.username).includes(q); })
+      .sort((a, b) => (normQ(S.profiles[a].username) === q ? -1 : 0) - (normQ(S.profiles[b].username) === q ? -1 : 0) || following(b) - following(a) || S.profiles[a].name.localeCompare(S.profiles[b].name));
+    body = '<p class="sub">' + hits.length + (hits.length === 1 ? " person" : " people") + '</p>' + (hits.length ? '<div class="people">' + hits.slice(0, 50).map(personRow).join("") + '</div>' : '<div class="empty"><p>No one called “' + esc(S.pq) + '” yet.<br>Send them the link so they can join.</p></div>');
+  } else {
+    const others = all.filter((u) => u !== S.uid);
+    const back = S.uid ? followersOf(S.uid).map((f) => f.u).filter((u) => !following(u) && S.profiles[u]) : [];
+    const fol = others.filter((u) => following(u));
+    const sugg = others.filter((u) => !following(u) && back.indexOf(u) < 0).sort((a, b) => {
+      const sc = (u) => (S.profiles[u].dept === me.dept ? 2 : 0) + (S.profiles[u].year === me.year ? 1 : 0) + (S.profiles[u].subject === me.subject ? 2 : 0);
+      return sc(b) - sc(a) || Date.parse(S.profiles[b].at || 0) - Date.parse(S.profiles[a].at || 0);
+    });
+    body = (back.length ? '<p class="sub">Followed you</p><div class="people">' + back.map(personRow).join("") + '</div>' : "") +
+      '<p class="sub">Suggested' + (me.subject ? ' · ' + esc(me.subject) + ' first' : "") + '</p>' + (sugg.length ? '<div class="people">' + sugg.slice(0, 20).map(personRow).join("") + '</div>' : '<p class="hint">You’ve followed everyone so far. Share the link to bring more people in.</p>') +
+      (fol.length ? '<p class="sub">Following <span class="mono">' + fol.length + '</span></p><div class="people">' + fol.map(personRow).join("") + '</div>' : "");
+  }
+  return '<h1 class="h1">Find <em>people</em></h1><p class="pulse-line mono">' + all.length + (all.length === 1 ? " person" : " people") + ' on FOMO</p>' +
+    '<div class="searchbar"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>' +
+    '<input id="people-q" type="search" placeholder="Search by name or @username" aria-label="Search people" autocomplete="off" autocapitalize="none" spellcheck="false" data-k="people-q" value="' + esc(S.pq || "") + '">' +
+    (S.pq ? '<button class="q-clear" type="button" data-act="clearpq" aria-label="Clear search">×</button>' : "") + '</div>' + body;
 }
 
 /* ---------- street map: MapLibre drawing OpenStreetMap vector tiles that are published with this page ----------
