@@ -6,6 +6,7 @@
 <title>fomo · UCL after dark</title>
 <meta name="description" content="Never miss out at UCL: every society event in one feed, a live map, friends, snaps and votes.">
 <meta name="theme-color" content="#0A0910">
+<meta http-equiv="Cache-Control" content="no-cache">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -817,7 +818,20 @@ html,body{margin:0}
   <div class="toast" id="toast" role="status" hidden></div>
 </main>
 
-<script>window.FOMO_CONFIG = {"url": "https://ckrgyymdcxrkbqbrhggj.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcmd5eW1kY3hya2JxYnJoZ2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxNTk1ODAsImV4cCI6MjEwNzczNTU4MH0.XVeUj1BzIB1AKICjzbd9irOVlooOIs6RnGiTkpkqauk"};</script>
+<script>window.FOMO_CONFIG = {"url": "https://ckrgyymdcxrkbqbrhggj.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrcmd5eW1kY3hya2JxYnJoZ2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxNTk1ODAsImV4cCI6MjEwNzczNTU4MH0.XVeUj1BzIB1AKICjzbd9irOVlooOIs6RnGiTkpkqauk"};
+/* Always run the latest build: GitHub Pages lets browsers cache this page for 10 minutes,
+   so check the live copy and reload once if a newer version has been published. */
+window.FOMO_BUILD = "20261016182513";
+(function () {
+  try {
+    if (sessionStorage.getItem("fomo-reloaded") === window.FOMO_BUILD) return;
+    fetch(location.pathname + "?check=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.text(); }).then(function (t) {
+      var m = t.match(/FOMO_BUILD = "([^"]+)"/);
+      if (m && m[1] !== window.FOMO_BUILD) { sessionStorage.setItem("fomo-reloaded", window.FOMO_BUILD); location.replace(location.pathname + "?v=" + m[1]); }
+    }).catch(function () {});
+  } catch (e) {}
+})();
+</script>
 <script src="vendor/supabase.js"></script>
 <script src="vendor/maplibre-gl.js"></script>
 <script src="web-adapter.js"></script>
