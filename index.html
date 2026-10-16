@@ -1247,12 +1247,37 @@ let swipeIdx = 0, swipeFrom = "signup";
 /* The deck order is frozen when a swipe session starts, so live data arriving mid-swipe
    (new events, other people's activity) can't reorder cards under the user. */
 let deckIds = null, swipeBusy = false, dragging = false;
+const SOC_CATS = [
+  ["Sport & fitness", /sport|club\b|teamucl|active|football|rugby|netball|hockey|tennis|boxing|yoga|run|swim|climb|row|cycl|martial|karate|judo|fencing|dance sport|ski|surf|parkour|basketball|volleyball|badminton|cricket|squash|golf|sail|lacrosse|frisbee|athletic|fitness|pole|kickbox|taekwondo|muay|hiking|riding|karting|cheerlead|gymnast|dodgeball|barbell|jiu/i],
+  ["Culture & faith", /african|caribbean|chinese|hong kong|japan|korea|indian|pakistan|bangla|arab|turkish|greek|italian|spanish|french|german|polish|russian|nigeria|ghana|malaysia|singapore|vietnam|thai|filipino|indonesia|persian|iran|kurd|latin|brazil|portug|nordic|irish|scottish|welsh|hellenic|cypr|nepal|sri lanka|tamil|sikh|hindu|islam|muslim|jewish|christian|catholic|orthodox|buddh|faith|bible|baha|asian|european|american|canad|australia|culture|heritage|east|west|india|lebanese|egypt|somali|eritrea|ethiop|armenia|ukrain|roman|taiwan|mongol|punjab|gujarat|sudan|orient|indo-pak|gospel|people of colour/i],
+  ["Arts & performance", /music|band|orchestra|choir|jazz|piano|guitar|a cappella|drama|theatre|musical|film|tv|dance|art|photo|fashion|drag|comedy|improv|writ|poet|literat|magazine|radio|media|design|opera|rock|metal|k-pop|anime|cinema|salsa|bellydanc/i],
+  ["Careers & business", /consult|finance|invest|business|entrepreneur|entre|career|law|bank|econom|trading|marketing|tech|startup|venture|accounting|quant|fintech|management|enterprise/i],
+  ["Causes & volunteering", /volunteer|charity|amnesty|unicef|msf|humanitarian|green|environment|sustainab|climate|feminis|women|lgbt|pride|rights|welfare|mental|mind|medsin|refugee|activ(ism|ist)|debate|politic|labour|conservative|liberal|model united|mun\b|disaster|debat|street aid|conservation|united nations|tedx|public speaking/i],
+  ["Academic", /science|natsci|physics|chemi|bio|math|stat|engineer|medic|dental|pharma|psych|neuro|history|philosoph|classics|geograph|archae|anthropo|linguist|language|architect|astro|space|computer|ai\b|robot|economics|neuroscience|biochem|institute|research|scholar|academ|anatomy|genetic|immuno|english|energy|surg|rums|translation|protein|zoolog/i],
+];
+function socCat(s) { if (s.type === "Sport") return "Sport & fitness"; for (const [c, re] of SOC_CATS) if (re.test(s.name)) return c; return "Hobbies & more"; }
+/* A swipe round shows a few societies from each category (the busiest ones not yet swiped),
+   interleaved so the deck mixes sport, culture, arts and so on. "Show me more" deals the next round. */
+const PER_CAT = 3;
+function swipeable() { return socList().filter((s) => s.id !== "su"); }
+const dealt = new Set(); // shown this session, even if skipped with "Skip the rest"
+function dealDeck(live) {
+  const seen = (s) => S.priv.liked[s.id] || S.priv.disliked[s.id] || dealt.has(s.id);
+  let fresh = live.filter((s) => !seen(s));
+  if (!fresh.length) { dealt.clear(); fresh = live.filter((s) => !seen(s)); }
+  const pool = fresh.length ? fresh : live;
+  const by = {}; pool.forEach((s) => { const c = socCat(s); (by[c] = by[c] || []).push(s); });
+  const cats = Object.keys(by), out = [];
+  for (let i = 0; i < PER_CAT; i++) cats.forEach((c) => { if (by[c][i]) out.push(by[c][i].id); });
+  out.forEach((id) => dealt.add(id));
+  return out;
+}
 function deck() {
-  const live = socList(), byId = {}; live.forEach((s) => { byId[s.id] = s; });
-  if (!deckIds || !deckIds.length) deckIds = live.map((s) => s.id);
-  else live.forEach((s) => { if (deckIds.indexOf(s.id) < 0) deckIds.push(s.id); });
+  const live = swipeable(), byId = {}; live.forEach((s) => { byId[s.id] = s; });
+  if (!deckIds || !deckIds.length) deckIds = dealDeck(live);
   return deckIds.map((id) => byId[id]).filter(Boolean);
 }
+function moreToSwipe() { return swipeable().some((s) => !S.priv.liked[s.id] && !S.priv.disliked[s.id] && !dealt.has(s.id)); }
 function upcomingCount(id) { const t = now(); return allEvents().filter((e) => e.soc === id && e.t1 > t).length; }
 function socList() { return Object.keys(S.societies).filter((id) => id !== "su-list" && !S.societies[id].sample).map((id) => Object.assign({ id, upcoming: upcomingCount(id) }, S.societies[id])).sort((a, b) => b.upcoming - a.upcoming || a.name.localeCompare(b.name)); }
 function renderSwipe() {
@@ -1265,14 +1290,14 @@ function renderSwipe() {
   }
   if (swipeIdx >= list.length) {
     const n = list.filter((s) => S.priv.liked[s.id]).length;
-    sc.innerHTML = head + '<div class="deck-done"><b class="h2">' + (n ? "You picked " + n + (n === 1 ? " society" : " societies") : "No picks yet") + '</b><p>' + (n ? "Their events will show first under For you." : "You can come back to this from Me any time.") + '</p><button class="btn small line" type="button" id="swipe-again">Swipe again</button></div>';
+    sc.innerHTML = head + '<div class="deck-done"><b class="h2">' + (n ? "You picked " + n + (n === 1 ? " society" : " societies") : "No picks yet") + '</b><p>' + (n ? "Their events will show first under For you." : "You can come back to this from Me any time.") + '</p>' + (moreToSwipe() ? '<button class="btn small line" type="button" id="swipe-again">Show me more societies</button>' : '') + '</div>';
     ft.innerHTML = '<button class="btn" id="swipe-finish" type="button">' + (swipeFrom === "app" ? "Done" : "See what’s on") + '</button>';
     return;
   }
   const card = (s, under) => '<div class="scard' + (under ? " under" : "") + '"' + (under ? "" : ' id="topcard"') + ' style="--c:var(' + (TYPEVAR[s.type] || "--primary") + ')">' +
     (under ? "" : '<span class="stamp yes">JOIN</span><span class="stamp no">SKIP</span>') +
     '<span class="sbadge" aria-hidden="true">' + esc(s.name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).slice(0, 2).join("")) + '</span>' +
-    '<span class="tag" data-t="' + esc(s.type) + '" style="align-self:flex-start">' + esc(s.type) + '</span>' +
+    '<span class="tag" data-t="' + esc(s.type) + '" style="align-self:flex-start">' + esc(socCat(s)) + '</span>' +
     '<h2>' + esc(s.name) + '</h2><p>' + esc(s.blurb || (s.url ? "See them on the Students’ Union UCL site." : "")) + '</p><span class="members">' + (s.upcoming ? s.upcoming + (s.upcoming === 1 ? " upcoming event" : " upcoming events") + " on FOMO" : "No upcoming events listed yet") + '</span></div>';
   sc.innerHTML = head + '<div class="deck">' + (list[swipeIdx + 1] ? card(list[swipeIdx + 1], true) : "") + card(list[swipeIdx], false) + '</div>' +
     '<div class="swipe-actions"><button class="round" type="button" data-swipe="no" aria-label="Skip ' + esc(list[swipeIdx].name) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
