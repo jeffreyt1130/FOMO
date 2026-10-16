@@ -2,7 +2,7 @@
 
 Every UCL society event in one feed, a live map, friends, snaps and votes. Built for the UCL "enhance student life" hackathon.
 
-**Live site:** https://jeffreyt1130.github.io/fomo/
+**Live site:** https://jeffreyt1130.github.io/FOMO/
 
 ## How it works
 
